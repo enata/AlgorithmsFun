@@ -9,6 +9,19 @@ namespace AlgorithmsFun.Tests.Matrices
     public sealed class MatrixTest
     {
         [Test]
+        public void BuildIdentityTest()
+        {
+            var identity = Matrix.BuildIdentity(2);
+
+            Assert.AreEqual(2, identity.Rows);
+            Assert.AreEqual(2, identity.Columns);
+            Assert.AreEqual(1.0, identity[0,0]);
+            Assert.AreEqual(0.0, identity[0,1]);
+            Assert.AreEqual(0.0, identity[1,0]);
+            Assert.AreEqual(1.0, identity[1,1]);
+        }
+
+        [Test]
         public void ComplexOperationSet()
         {
             var a = new Matrix(new[,] {{1.0}, {4.0}, {2.0}});

@@ -5,6 +5,7 @@ namespace AlgorithmsFun.Matrices
     public sealed class Matrix
     {
         private readonly double[,] _values;
+        private const int StrassenMultiplicationSize = 64; // matrix size for which Strassens multiplication makes sence
 
         public Matrix(int rows, int columns)
         {
@@ -54,6 +55,69 @@ namespace AlgorithmsFun.Matrices
             return CreateCombinedMatrix(matrix1, matrix2, (n1, n2) => n1 - n2);
         }
 
+        
+        public static Matrix operator*(Matrix matrix1, Matrix matrix2)
+        {
+            if (matrix1 == null || matrix2 == null)
+                throw new ArgumentNullException();
+
+            if (matrix1.Rows > StrassenMultiplicationSize || matrix2.Columns > StrassenMultiplicationSize)
+            {
+                return MultiplyStrassen(matrix1, matrix2);
+            }
+
+            return MultiplyClassic(matrix1, matrix2);
+        }
+
+        /// <summary>
+        /// Classic matrix multiplication n^3
+        /// </summary>
+        /// <returns></returns>
+        public static Matrix MultiplyClassic(Matrix matrix1, Matrix matrix2)
+        {
+            if (matrix1 == null || matrix2 == null)
+                throw new ArgumentNullException();
+            if (matrix1.Columns != matrix2.Rows)
+                throw new InvalidOperationException(
+                    "Number of rows in the 1st array and columns in the 2nd should be equal");
+
+            var result = new Matrix(matrix1.Rows, matrix2.Columns);
+            for (int i = 0; i < matrix1.Rows; i++)
+            {
+                for (int j = 0; j < matrix2.Columns; j++)
+                {
+                    double currentCell = 0.0;
+                    for (int k = 0; k < matrix1.Columns; k++)
+                    {
+                        currentCell += matrix1[i, k]*matrix2[k, j];
+                    }
+                    result[i, j] = currentCell;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Builds identity matrix size x size
+        /// </summary>
+        /// <param name="size"></param>
+        /// <returns>identity matrix size x size</returns>
+        public static Matrix BuildIdentity(int size)
+        {
+            if (size <= 0)
+            {
+                throw new ArgumentException("Matrix dimensions <= 0", "size");
+            }
+
+            var matrixArray = new double[size,size];
+            for (int i = 0; i < size; i++)
+            {
+                matrixArray[i, i] = 1.0;
+            }
+            var result = new Matrix(matrixArray);
+            return result;
+        }
+
         /// <summary>
         /// Scalar multiplication
         /// </summary>
@@ -101,7 +165,7 @@ namespace AlgorithmsFun.Matrices
         }
 
         //Strassen's matrix multiplication
-        public static Matrix operator *(Matrix a, Matrix b)
+        public static Matrix MultiplyStrassen(Matrix a, Matrix b)
         {
             if (a == null || b == null)
                 throw new ArgumentNullException();
@@ -148,6 +212,11 @@ namespace AlgorithmsFun.Matrices
             {
                 result[0, 0] = a[0, 0]*b[0, 0];
                 return result;
+            }
+
+            if (dimensions <= StrassenMultiplicationSize)
+            {
+                return a*b;
             }
 
             Matrix a11, a21, a12, a22;
