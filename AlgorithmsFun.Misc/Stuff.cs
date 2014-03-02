@@ -1,11 +1,130 @@
-﻿using System;
+﻿using AlgorithmsFun.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace AlgorithmsFun.Misc
 {
+    /// <summary>
+    /// All kinds of trash
+    /// </summary>
     public static class Stuff
     {
+        /// <summary>
+        /// Determines whether a given integer is in the array
+        /// </summary>
+        /// <param name="array">sorted array of distinct values</param>
+        /// <param name="number"></param>
+        /// <returns>true if given number is in the array</returns>
+        public static bool BinarySearchAdditionSubstraction(int[] array, int number)
+        {
+            if (array == null) throw new ArgumentNullException("array");
+            
+            if (array.Length == 0)
+                return false;
+
+            int fib = 0, prevFib = 0;
+            foreach (var currentFib in GenerateFibonacciSequence())
+            {
+                if (currentFib >= array.Length)
+                    break;
+                prevFib = fib;
+                fib = currentFib;
+            }
+            int start = 0;
+            int end = array.Length - 1;
+            while (end - start >= 0)
+            {
+                if (array[start + fib] == number)
+                    return true;
+                if (array[start + fib] > number)
+                    end = start + fib - 1;
+                else
+                    start = start + fib + 1;
+                ReduceFibonacci(ref fib, ref prevFib, end - start);
+            }
+            return false;
+        }
+
+        private static void ReduceFibonacci(ref int currentFibonacci, ref int prevFibonacci, int upperBound)
+        {
+            while (currentFibonacci >= upperBound)
+            {
+                int prevPrevFibonacci = currentFibonacci - prevFibonacci;
+                currentFibonacci = prevFibonacci;
+                prevFibonacci = prevPrevFibonacci;
+            }   
+        }
+
+        private static IEnumerable<int> GenerateFibonacciSequence()
+        {
+            int prevprev = 0;
+            yield return prevprev;
+            int prev = 1;
+            yield return prev;
+            while (true)
+            {
+                int current = prev + prevprev;
+                prevprev = prev;
+                prev = current;
+                yield return current;
+            }
+        }
+
+        /// <summary>
+        /// Determines wether a given integer is in the array
+        /// </summary>
+        /// <param name="array">bitonic array of distinct numbers</param>
+        /// <param name="num"></param>
+        /// <returns></returns>
+        public static bool BitonicSearch(int[] array, int num)
+        {
+            if (array == null) throw new ArgumentNullException("array");
+
+            if (array.Length == 0) return false;
+
+            int midPoint = FindMidPoint(array);
+            int leftPosition = array.SearchBinary(0, midPoint, (middle, left, right) =>
+                {
+                    if (middle == num)
+                        return 0;
+                    if (middle < num)
+                        return 1;
+                    return -1;
+                });
+            if (leftPosition >= 0)
+                return true;
+            int rightPosition = array.SearchBinary(midPoint, array.Length - 1, (middle, left, right) =>
+                {
+                    if (middle == num)
+                        return 0;
+                    if (middle < num)
+                        return -1;
+                    return 1;
+                });
+            return rightPosition >= 0;
+        }
+
+        private static int FindMidPoint(int[] array)
+        {
+            var result = array.SearchBinary((middle, left, right) =>
+                {
+                    if ((!left.HasValue && !right.HasValue) ||
+                        ((!left.HasValue || middle > left.Value) && (!right.HasValue || middle > right.Value)))
+                        return 0;
+                    if (right.HasValue)
+                    {
+                        if (middle < right.Value)
+                            return 1;
+                        return -1;
+                    }
+                    if (middle < left.Value)
+                        return -1;
+                    return 1;
+                });
+            return result;
+        }
+
         /// <summary>
         ///     Finds local minimum (pair of indeces i, j) : a[i, j] < a[ i+1, j], a[ i, j] < a[ i, j+1], a[ i, j] < a[ i-1, j], a[
         ///         i, j] < a[ i, j-1]
@@ -137,17 +256,17 @@ namespace AlgorithmsFun.Misc
         private sealed class Quadrant : IComparable<Quadrant>
         {
             public readonly Direction Direction;
-            public readonly int Value;
+            private readonly int _value;
 
             public Quadrant(Direction direction, int value)
             {
                 Direction = direction;
-                Value = value;
+                _value = value;
             }
 
             public int CompareTo(Quadrant other)
             {
-                return Value.CompareTo(other.Value);
+                return _value.CompareTo(other._value);
             }
         }
     }

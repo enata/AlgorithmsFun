@@ -39,10 +39,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DequeWithStackSteque.cs" />
     <Compile Include="PairAnalyzer.cs" />
+    <Compile Include="Queue2Stacks.cs" />
+    <Compile Include="Stack1Queue.cs" />
+    <Compile Include="StaticSetOfInts.cs" />
+    <Compile Include="Steque2Stacks.cs" />
     <Compile Include="Stuff.cs" />
     <Compile Include="Sum4Checker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AlgorithmsFun.Utils\AlgorithmsFun.Utils.csproj">
+      <Project>{1FCBAD33-BC5C-4B6D-AA4F-46637090774F}</Project>
+      <Name>AlgorithmsFun.Utils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
